@@ -60,6 +60,7 @@ export default function ShellDemo() {
               ? undefined
               : 'Northgate Diagnostic Center'
           }
+          onLogout={() => console.log('Logout from shell demo')}
         >
           <div className="space-y-6">
             <PageHeader

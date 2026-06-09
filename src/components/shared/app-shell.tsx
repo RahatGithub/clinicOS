@@ -13,6 +13,7 @@ interface AppShellProps {
   userAvatarUrl?: string
   tenantName?: string
   tenantLogoUrl?: string
+  onLogout?: () => void
   children: React.ReactNode
 }
 
@@ -22,6 +23,7 @@ export function AppShell({
   userAvatarUrl,
   tenantName,
   tenantLogoUrl,
+  onLogout,
   children,
 }: AppShellProps) {
   const pathname = usePathname()
@@ -36,6 +38,7 @@ export function AppShell({
           tenantName={tenantName}
           tenantLogoUrl={tenantLogoUrl}
           activePath={pathname}
+          onLogout={onLogout}
         />
       </aside>
 
@@ -51,6 +54,7 @@ export function AppShell({
             tenantName={tenantName}
             tenantLogoUrl={tenantLogoUrl}
             activePath={pathname}
+            onLogout={onLogout}
           />
         </SheetContent>
       </Sheet>
@@ -62,6 +66,7 @@ export function AppShell({
           userRole={role}
           userAvatarUrl={userAvatarUrl}
           onMenuClick={() => setMobileOpen(true)}
+          onLogout={onLogout}
         />
         <main className="flex-1 overflow-y-auto bg-canvas">
           <div className="mx-auto max-w-7xl p-6 lg:p-8">{children}</div>

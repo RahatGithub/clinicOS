@@ -20,6 +20,7 @@ interface TopbarProps {
   userRole: Role
   userAvatarUrl?: string
   onMenuClick?: () => void
+  onLogout?: () => void
 }
 
 const notifications = [
@@ -28,7 +29,7 @@ const notifications = [
   { id: 3, text: 'Staff schedule updated', time: '1 hr ago' },
 ]
 
-export function Topbar({ userName, userRole, userAvatarUrl, onMenuClick }: TopbarProps) {
+export function Topbar({ userName, userRole, userAvatarUrl, onMenuClick, onLogout }: TopbarProps) {
   const profilePath =
     userRole === 'doctor'
       ? '/doctor/profile'
@@ -97,7 +98,7 @@ export function Topbar({ userName, userRole, userAvatarUrl, onMenuClick }: Topba
               Profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem render={<Link href="/login" />}>
+            <DropdownMenuItem onClick={onLogout}>
               <LogOut className="h-4 w-4" />
               Log out
             </DropdownMenuItem>

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Check, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
@@ -9,7 +10,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { demoUsers } from '@/lib/data'
-import { roleLabels } from '@/lib/nav-config'
+import { roleLabels, roleHomePath } from '@/lib/nav-config'
+import { useAuth } from '@/lib/auth-context'
 import type { Role } from '@/types'
 
 const rolePills: { role: Role; label: string }[] = [
@@ -39,16 +41,28 @@ const fade = {
 export default function LoginPage() {
   const [selectedRole, setSelectedRole] = useState<Role>('center_admin')
   const [showPassword, setShowPassword] = useState(false)
+  const { login, user: authUser, isLoading } = useAuth()
+  const router = useRouter()
 
-  const user = demoUsers.find((u) => u.role === selectedRole)!
-  const email = user.email
-  const password = user.password
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!isLoading && authUser) {
+      router.replace(roleHomePath(authUser.role))
+    }
+  }, [authUser, isLoading, router])
+
+  const demoUser = demoUsers.find((u) => u.role === selectedRole)!
+  const email = demoUser.email
+  const password = demoUser.password
 
   function handleLogin() {
-    console.log('Login attempt:', { role: selectedRole, email, user })
-    toast.info('Login wired in next step', {
-      description: `Would log in as ${user.name} (${roleLabels[selectedRole]})`,
-    })
+    const result = login(email, password)
+    if (result.success) {
+      toast.success(`Welcome back, ${demoUser.name}!`)
+      router.push(roleHomePath(selectedRole))
+    } else {
+      toast.error(result.error ?? 'Login failed')
+    }
   }
 
   return (

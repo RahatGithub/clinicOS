@@ -11,6 +11,7 @@ interface SidebarProps {
   tenantName?: string
   tenantLogoUrl?: string
   activePath: string
+  onLogout?: () => void
 }
 
 function BrandBlock({
@@ -45,7 +46,7 @@ function BrandBlock({
   )
 }
 
-export function SidebarContent({ role, tenantName, tenantLogoUrl, activePath }: SidebarProps) {
+export function SidebarContent({ role, tenantName, tenantLogoUrl, activePath, onLogout }: SidebarProps) {
   const items = getNavForRole(role)
 
   return (
@@ -81,13 +82,13 @@ export function SidebarContent({ role, tenantName, tenantLogoUrl, activePath }: 
       </nav>
 
       <div className="border-t border-line-soft px-3 py-3">
-        <Link
-          href="/login"
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-ink-faint transition-colors hover:bg-line-soft hover:text-ink"
+        <button
+          onClick={onLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-ink-faint transition-colors hover:bg-line-soft hover:text-ink"
         >
           <LogOut className="h-[18px] w-[18px]" />
           Log out
-        </Link>
+        </button>
       </div>
     </div>
   )
