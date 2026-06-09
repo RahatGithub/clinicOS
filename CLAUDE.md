@@ -4,9 +4,9 @@
 ClinicOS is a multi-tenant SaaS demo for diagnostic/healthcare centers, built as a portfolio piece to showcase to freelance clients (US/EU/AUS). It is an interactive, NON-persistent demo: data lives in mock JSON + in-session React state and resets on refresh. There is NO real backend and NO database.
 
 ## Tech stack
-- Next.js 15 (App Router) + React 19 + TypeScript
+- Next.js 16 (App Router) + React 19 + TypeScript
 - Tailwind CSS v4
-- shadcn/ui (new-york style)
+- shadcn/ui (base-nova preset — the neutral successor to the old new-york style; uses CSS variables, Tailwind v4, lucide icons)
 - Framer Motion (UI interactions, transitions)
 - GSAP + ScrollTrigger (landing-page scroll animations)
 - lucide-react (icons)
