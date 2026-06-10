@@ -1,23 +1,6 @@
-'use client'
+import Link from 'next/link'
 
-import { useRouter } from 'next/navigation'
-import { ShieldAlert } from 'lucide-react'
-import { useAuth } from '@/lib/auth-context'
-import { roleHomePath } from '@/lib/nav-config'
-
-export default function UnauthorizedPage() {
-  const { user, logout } = useAuth()
-  const router = useRouter()
-
-  function handleBack() {
-    router.push(user ? roleHomePath(user.role) : '/login')
-  }
-
-  function handleLogout() {
-    logout()
-    router.push('/login')
-  }
-
+export default function NotFoundPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-canvas px-6">
       {/* Decorative gradient blobs */}
@@ -37,39 +20,32 @@ export default function UnauthorizedPage() {
           </span>
         </div>
 
-        {/* Icon */}
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-tint">
-          <ShieldAlert className="h-8 w-8 text-brand-deep" />
-        </div>
-
-        <h1 className="mt-5 font-display text-xl font-semibold text-ink sm:text-2xl">
-          Access Denied
+        {/* 404 treatment */}
+        <h1 className="text-brand-gradient font-display text-8xl font-bold tracking-tight sm:text-9xl">
+          404
         </h1>
+
+        <h2 className="mt-4 font-display text-xl font-semibold text-ink sm:text-2xl">
+          Page not found
+        </h2>
         <p className="mt-2 text-sm text-ink-soft">
-          You don&apos;t have permission to view this page.
-          {user && (
-            <>
-              {' '}You&apos;re logged in as <span className="font-medium text-ink">{user.name}</span>.
-            </>
-          )}
+          The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
 
         {/* Actions */}
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <button
-            onClick={handleBack}
+          <Link
+            href="/"
             className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-gradient px-5 text-sm font-medium text-white transition-all hover:brightness-105"
           >
-            {user ? 'Back to my dashboard' : 'Go to login'}
-          </button>
-          {user && (
-            <button
-              onClick={handleLogout}
-              className="inline-flex h-9 items-center justify-center rounded-lg border border-input px-5 text-sm font-medium text-ink-soft transition-colors hover:bg-muted hover:text-ink"
-            >
-              Log out
-            </button>
-          )}
+            Back to home
+          </Link>
+          <Link
+            href="/login"
+            className="inline-flex h-9 items-center justify-center rounded-lg border border-input px-5 text-sm font-medium text-ink-soft transition-colors hover:bg-muted hover:text-ink"
+          >
+            Go to login
+          </Link>
         </div>
 
         {/* Subtle decorative line */}
