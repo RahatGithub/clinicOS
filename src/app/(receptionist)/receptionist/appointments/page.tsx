@@ -35,6 +35,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
+import { PatientRegistration } from '@/components/receptionist/patient-registration'
 import type { Appointment, Patient } from '@/types'
 
 // ── Constants ──
@@ -84,8 +85,7 @@ export default function ReceptionistAppointmentsPage() {
   const [bookingOpen, setBookingOpen] = useState(false)
   const [patientSearch, setPatientSearch] = useState('')
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
-  const [isNewPatient, setIsNewPatient] = useState(false)
-  const [newPat, setNewPat] = useState({ name: '', phone: '', email: '', gender: 'male' as const, dob: '' })
+  const [registerOpen, setRegisterOpen] = useState(false)
   const [bookDoc, setBookDoc] = useState(doctors[0]?.id ?? '')
   const [bookDate, setBookDate] = useState(TODAY)
   const [bookTime, setBookTime] = useState('09:00')
@@ -156,8 +156,6 @@ export default function ReceptionistAppointmentsPage() {
     setBookingOpen(true)
     setPatientSearch('')
     setSelectedPatient(null)
-    setIsNewPatient(false)
-    setNewPat({ name: '', phone: '', email: '', gender: 'male', dob: '' })
     setBookDoc(doctors[0]?.id ?? '')
     setBookDate(TODAY)
     setBookTime('09:00')
@@ -165,22 +163,13 @@ export default function ReceptionistAppointmentsPage() {
     setBookDuration(30)
   }
 
+  function handlePatientCreated(newPatient: Patient) {
+    setPatientList((prev) => [...prev, newPatient])
+    setSelectedPatient(newPatient)
+  }
+
   function submitBooking() {
-    let pat = selectedPatient
-    if (isNewPatient) {
-      if (!newPat.name.trim()) { toast.error('Patient name is required.'); return }
-      const id = `PAT-${patIdCounter++}`
-      pat = {
-        id,
-        name: newPat.name.trim(),
-        dob: newPat.dob ? `${newPat.dob}T00:00:00Z` : '1990-01-01T00:00:00Z',
-        gender: newPat.gender,
-        email: newPat.email.trim(),
-        phone: newPat.phone.trim(),
-        registeredDate: `${TODAY}T00:00:00Z`,
-      }
-      setPatientList((prev) => [...prev, pat!])
-    }
+    const pat = selectedPatient
     if (!pat) { toast.error('Please select or register a patient.'); return }
     if (!bookReason.trim()) { toast.error('Reason for visit is required.'); return }
 
@@ -335,7 +324,7 @@ export default function ReceptionistAppointmentsPage() {
           <div>
             <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-ink-faint">Patient</span>
 
-            {!selectedPatient && !isNewPatient ? (
+            {!selectedPatient ? (
               <>
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
@@ -366,11 +355,11 @@ export default function ReceptionistAppointmentsPage() {
                 {patientSearch.trim().length >= 2 && searchResults.length === 0 && (
                   <p className="mt-2 text-xs text-ink-faint">No patient found.</p>
                 )}
-                <Button variant="ghost" size="sm" className="mt-2 text-xs text-brand" onClick={() => setIsNewPatient(true)}>
+                <Button variant="ghost" size="sm" className="mt-2 text-xs text-brand" onClick={() => setRegisterOpen(true)}>
                   + Register new patient
                 </Button>
               </>
-            ) : selectedPatient ? (
+            ) : (
               <div className="flex items-center gap-3 rounded-lg border border-line-soft p-3">
                 <UserAvatar name={selectedPatient.name} size="sm" />
                 <div className="min-w-0 flex-1">
@@ -378,19 +367,6 @@ export default function ReceptionistAppointmentsPage() {
                   <p className="text-xs text-ink-faint">{selectedPatient.id} &middot; {selectedPatient.phone} &middot; {selectedPatient.email}</p>
                 </div>
                 <Button variant="ghost" size="xs" onClick={() => setSelectedPatient(null)}>Change</Button>
-              </div>
-            ) : (
-              <div className="space-y-3 rounded-lg border border-line-soft p-3">
-                <p className="text-xs font-medium text-ink-faint">New patient</p>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Input placeholder="Full name *" value={newPat.name} onChange={(e) => setNewPat({ ...newPat, name: e.target.value })} />
-                  <Input placeholder="Phone" value={newPat.phone} onChange={(e) => setNewPat({ ...newPat, phone: e.target.value })} />
-                  <Input placeholder="Email" value={newPat.email} onChange={(e) => setNewPat({ ...newPat, email: e.target.value })} />
-                  <Input type="date" value={newPat.dob} onChange={(e) => setNewPat({ ...newPat, dob: e.target.value })} />
-                </div>
-                <Button variant="ghost" size="xs" className="text-xs text-brand" onClick={() => { setIsNewPatient(false); setPatientSearch('') }}>
-                  Search existing instead
-                </Button>
               </div>
             )}
           </div>
@@ -467,6 +443,13 @@ export default function ReceptionistAppointmentsPage() {
         confirmLabel="Cancel appointment"
         destructive
         onConfirm={doCancel}
+      />
+
+      {/* Patient registration */}
+      <PatientRegistration
+        open={registerOpen}
+        onOpenChange={setRegisterOpen}
+        onCreated={handlePatientCreated}
       />
     </motion.div>
   )

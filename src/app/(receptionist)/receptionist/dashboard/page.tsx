@@ -23,8 +23,9 @@ import {
 } from '@/components/shared'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { PatientRegistration } from '@/components/receptionist/patient-registration'
 import Link from 'next/link'
-import type { Appointment } from '@/types'
+import type { Appointment, Patient } from '@/types'
 
 // ── Constants ──
 
@@ -58,6 +59,7 @@ export default function ReceptionistDashboard() {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [statuses, setStatuses] = useState<Record<string, string>>({})
+  const [registerOpen, setRegisterOpen] = useState(false)
 
   const todayAppts = useMemo(
     () =>
@@ -133,10 +135,16 @@ export default function ReceptionistDashboard() {
             <CalendarPlus className="mr-1.5 h-4 w-4" /> Book appointment
           </Button>
         </Link>
-        <Button variant="outline" onClick={() => toast.info('Patient registration coming in the next update.')}>
+        <Button variant="outline" onClick={() => setRegisterOpen(true)}>
           <UserPlus className="mr-1.5 h-4 w-4" /> Register patient
         </Button>
       </motion.div>
+
+      <PatientRegistration
+        open={registerOpen}
+        onOpenChange={setRegisterOpen}
+        onCreated={() => {}}
+      />
 
       {/* Today's schedule */}
       <motion.div variants={fadeUp}>
