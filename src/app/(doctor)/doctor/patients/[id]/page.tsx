@@ -46,12 +46,29 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { PrescriptionPdfActions } from '@/components/doctor/prescription-pdf-actions'
+import { tenants } from '@/lib/data'
 import type {
   HealthMetricType,
   HealthMetricEntry,
   StaticHealthInfo,
   Prescription,
 } from '@/types'
+
+const CENTER_TENANT = tenants.find((t) => t.id === 'TEN-001')!
+const CENTER_INFO = {
+  name: CENTER_TENANT.name,
+  address: `${CENTER_TENANT.address.street}, ${CENTER_TENANT.address.city}, ${CENTER_TENANT.address.state}`,
+  phone: CENTER_TENANT.phone,
+  email: CENTER_TENANT.email,
+}
 
 // ── Constants ──
 
@@ -179,6 +196,7 @@ export default function PatientRecordPage() {
     prescriptions.filter((rx) => rx.patientId === patientId).sort((a, b) => b.date.localeCompare(a.date)),
   )
   const [expandedRx, setExpandedRx] = useState<string | null>(null)
+  const [completedRx, setCompletedRx] = useState<Prescription | null>(null)
 
   // ── Derived ──
 
@@ -289,6 +307,7 @@ export default function PatientRecordPage() {
       ...(notes.trim() && { notes: notes.trim() }),
     }
     setLocalPrescriptions((prev) => [rx, ...prev])
+    setCompletedRx(rx)
     // Reset form
     setChiefComplaint('')
     setDiagnosis('')
@@ -298,7 +317,7 @@ export default function PatientRecordPage() {
     setNotTodos('')
     setFollowUpDate('')
     setNotes('')
-    toast.success('Consultation saved \u2014 PDF generation coming next.')
+    toast.success('Consultation saved.')
   }
 
   // ── Render ──
@@ -569,6 +588,14 @@ export default function PatientRecordPage() {
                         </div>
                         {isOpen ? <ChevronUp className="h-4 w-4 text-ink-faint" /> : <ChevronDown className="h-4 w-4 text-ink-faint" />}
                       </button>
+                      <div className="flex items-center gap-1 pr-3" onClick={(e) => e.stopPropagation()}>
+                        <PrescriptionPdfActions
+                          prescription={rx}
+                          patient={patient!}
+                          doctor={staff.find((s) => s.id === rx.doctorId) ?? doctor}
+                          center={CENTER_INFO}
+                        />
+                      </div>
 
                       {isOpen && (
                         <div className="border-t border-line-soft px-5 py-4 space-y-3 text-sm">
@@ -703,11 +730,7 @@ export default function PatientRecordPage() {
               </div>
             </SectionCard>
 
-            <div className="flex items-center justify-between rounded-xl border border-line bg-white px-5 py-4">
-              <div className="flex items-start gap-1.5 text-xs text-ink-soft">
-                <Info className="mt-0.5 h-3 w-3 shrink-0 text-brand" />
-                PDF prescription generation is available in the next update.
-              </div>
+            <div className="flex items-center justify-end rounded-xl border border-line bg-white px-5 py-4">
               <Button
                 className="bg-brand-gradient text-white border-none"
                 onClick={completeConsultation}
@@ -718,6 +741,36 @@ export default function PatientRecordPage() {
           </TabsContent>
         </Tabs>
       </motion.div>
+
+      {/* Consultation complete dialog */}
+      <Dialog open={completedRx !== null} onOpenChange={(open) => !open && setCompletedRx(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Consultation Complete</DialogTitle>
+            <DialogDescription>
+              Prescription {completedRx?.id} has been saved for {completedRx?.patientName}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div><span className="text-ink-faint">Diagnosis:</span> <span className="text-ink">{completedRx?.diagnosis}</span></div>
+            <div><span className="text-ink-faint">Medicines:</span> <span className="text-ink">{completedRx?.medicines.length ?? 0}</span></div>
+            {completedRx?.followUpDate && (
+              <div><span className="text-ink-faint">Follow-up:</span> <span className="text-ink">{formatDate(completedRx.followUpDate)}</span></div>
+            )}
+          </div>
+          <div className="mt-4 flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setCompletedRx(null)}>Close</Button>
+            {completedRx && patient && (
+              <PrescriptionPdfActions
+                prescription={completedRx}
+                patient={patient}
+                doctor={doctor}
+                center={CENTER_INFO}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   )
 }
